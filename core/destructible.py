@@ -13,12 +13,12 @@ class Destructible:
             if child not in self._children:
                 self._children.append(child)
                 child.__addparent(self)
-        else:
-            invalidtypes(child)
+            return child
+        invalidtypes(child)
 
     def __addparent(self, parent):
         if isinstance(parent, Destructible):
-            if not parent in self._parents:
+            if parent not in self._parents:
                 self._parents.append(parent)
                 parent.addchild(self)
         else:
