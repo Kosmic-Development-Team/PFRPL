@@ -1,4 +1,4 @@
-from core.supplier import Supplier
+from util.supplier import Supplier
 from util.utility import *
 import core.stream as instream
 
