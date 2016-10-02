@@ -1,5 +1,6 @@
 
+
 class Supplier:
 
     def get(self):
-        return False
+        return None
