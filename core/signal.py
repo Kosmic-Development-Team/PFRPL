@@ -9,17 +9,17 @@ class Signal(instream.Stream, Supplier):
         super(Signal, self).__init__()
         self._value = value
 
-    def __lambda0(self, u, s):
+    def __runall(self, u, s):
         u(self.get())
         s.set(self.get())
 
-    def __lambda1(self, u, s):
+    def __runifelif(self, u, s):
         if u(self.get()):
             s.set(self.get())
         else:
             s.destroy()
 
-    def __lambda2(self, u, s):
+    def __runif(self, u, s):
         if u(self.get()):
             s.set(self.get())
 
@@ -49,7 +49,7 @@ class Signal(instream.Stream, Supplier):
 
     def foreach(self, unaryoperator):
         if islambda(unaryoperator, 1):
-            return self.withstream(Signal(self.get()), lambda s: self.__lambda0(unaryoperator, s))
+            return self.withstream(Signal(self.get()), lambda s: self.__runall(unaryoperator, s))
         invalidtypes(unaryoperator)
 
     def untilsignal(self, signal):
@@ -61,7 +61,7 @@ class Signal(instream.Stream, Supplier):
             v = None
             if unaryfunc(self.get()):
                 v = self.get()
-            return self.withstream(Signal(v), lambda s: self.__lambda1(unaryfunc, s))
+            return self.withstream(Signal(v), lambda s: self.__runifelif(unaryfunc, s))
         invalidtypes(unaryfunc)
 
     def filtersignal(self, signal):
@@ -74,13 +74,13 @@ class Signal(instream.Stream, Supplier):
             v = None
             if unaryfunc(self.get()):
                 v = self.get()
-            return self.withstream(Signal(v), lambda s: self.__lambda2(unaryfunc, s))
+            return self.withstream(Signal(v), lambda s: self.__runif(unaryfunc, s))
         invalidtypes(unaryfunc)
 
     def doforeach(self, unaryoperator):
         if islambda(unaryoperator, 1):
             unaryoperator(self.get())
-            return self.withstream(Signal(self.get()), lambda s: self.__lambda0(unaryoperator, s))
+            return self.withstream(Signal(self.get()), lambda s: self.__runall(unaryoperator, s))
         invalidtypes(unaryoperator)
 
     def find(self, unaryfunc):
