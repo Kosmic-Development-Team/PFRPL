@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
 from core.destructible import Destructible
-from core.supplier import Supplier
+from util.supplier import Supplier
 from util.utility import *
 
 
@@ -11,25 +11,30 @@ class Stream(Destructible):
         super(Stream, self).__init__()
         self._tocall = OrderedDict()
 
-    def __lambda0(self, operator, s):
+    @staticmethod
+    def __runall(operator, s):
         operator()
         s.run()
 
-    def __lambda1(self, supplier, s):
+    @staticmethod
+    def __runif(supplier, s):
         if supplier.get():
             s.run()
 
-    def __lambda2(self, supplier, s):
+    @staticmethod
+    def __runiflambda(supplier, s):
         if supplier():
             s.run()
 
-    def __lambda3(self, supplier, s):
+    @staticmethod
+    def __runifelif(supplier, s):
         if supplier.get():
             s.run()
         else:
             s.destroy()
 
-    def __lambda4(self, supplier, s):
+    @staticmethod
+    def __runifeliflambda(supplier, s):
         if supplier():
             s.run()
         else:
@@ -53,7 +58,7 @@ class Stream(Destructible):
 
     def onrun(self, operator):
         if islambda(operator, 0):
-            return self.withstream(Stream(), lambda s: self.__lambda0(operator, s))
+            return self.withstream(Stream(), lambda s: self.__runall(operator, s))
 
     def withstream(self, stream, unaryoperator):
         if isinstance(stream, Stream) and islambda(unaryoperator, 1):
@@ -74,16 +79,16 @@ class Stream(Destructible):
 
     def filter(self, supplier):
         if isinstance(supplier, Supplier):
-            return self.withstream(Stream(), lambda s: self.__lambda1(supplier, s))
+            return self.withstream(Stream(), lambda s: self.__runif(supplier, s))
         elif islambda(supplier, 0):
-            return self.withstream(Stream(), lambda s: self.__lambda2(supplier, s))
+            return self.withstream(Stream(), lambda s: self.__runiflambda(supplier, s))
         invalidtypes(supplier)
 
     def until(self, supplier):
         if isinstance(supplier, Supplier):
-            return self.withstream(Stream(), lambda s: self.__lambda3(supplier, s))
+            return self.withstream(Stream(), lambda s: self.__runifelif(supplier, s))
         elif islambda(supplier, 0):
-            return self.withstream(Stream(), lambda s: self.__lambda4(supplier, s))
+            return self.withstream(Stream(), lambda s: self.__runifeliflambda(supplier, s))
         invalidtypes(supplier)
 
     def count(self):
