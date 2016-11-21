@@ -41,11 +41,9 @@ class Stream(Destructible):
             s.destroy()
 
     def addchildterm(self, child, func):
-        if isinstance(child, Destructible) and islambda(func, 0):
-            self.addchild(child)
-            self._tocall[child] = func
-            return child
-        invalidtypes(child, func)
+        self.addchild(child)
+        self._tocall[child] = func
+        return child
 
     def removechild(self, child):
         super(Stream, self).removechild(child)
@@ -57,13 +55,10 @@ class Stream(Destructible):
             func()
 
     def onrun(self, operator):
-        if islambda(operator, 0):
-            return self.withstream(Stream(), lambda s: self.__runall(operator, s))
+        return self.withstream(Stream(), lambda s: self.__runall(operator, s))
 
     def withstream(self, stream, unaryoperator):
-        if isinstance(stream, Stream) and islambda(unaryoperator, 1):
-            return self.addchildterm(stream, lambda: unaryoperator(stream))
-        invalidtypes(stream, unaryoperator)
+        return self.addchildterm(stream, lambda: unaryoperator(stream))
 
     def tostream(self):
         return self.withstream(Stream(), lambda s: s.run())
@@ -71,50 +66,37 @@ class Stream(Destructible):
     def combine(self, *streams):
         st = self.tostream()
         for stream in list(streams):
-            if isinstance(stream, Stream):
-                stream.withstream(st, lambda s: s.run())
-            else:
-                invalidtypes(stream)
+            stream.withstream(st, lambda s: s.run())
         return st
 
     def filter(self, supplier):
         if isinstance(supplier, Supplier):
             return self.withstream(Stream(), lambda s: self.__runif(supplier, s))
-        elif islambda(supplier, 0):
+        else:
             return self.withstream(Stream(), lambda s: self.__runiflambda(supplier, s))
-        invalidtypes(supplier)
 
     def until(self, supplier):
         if isinstance(supplier, Supplier):
             return self.withstream(Stream(), lambda s: self.__runifelif(supplier, s))
-        elif islambda(supplier, 0):
+        else:
             return self.withstream(Stream(), lambda s: self.__runifeliflambda(supplier, s))
-        invalidtypes(supplier)
 
     def count(self):
         return self.reduce(lambda i: i + 1)
 
     def first(self, n):
-        if isinstance(n, int):
-            return self.until(self.count().map(lambda i: i <= n))
-        invalidtypes(n)
+        return self.until(self.count().map(lambda i: i <= n))
 
     def tosignal(self, signal):
-        import core.signal as insignal
-        if isinstance(signal, insignal.Signal):
             return signal.addchildterm(self.withstream(signal.Signal(signal.get()), lambda s: s.set(signal.get())))
-        invalidtypes(signal)
 
     def map(self, supplier):
         import core.signal as insignal
         if isinstance(supplier, Supplier):
             return self.withstream(insignal.Signal(supplier.get()), lambda s: s.set(supplier.get()))
-        elif islambda(supplier, 0):
+        else:
             return self.withstream(insignal.Signal(supplier.get()), lambda s: s.set(supplier()))
-        invalidtypes(supplier)
 
     def reduce(self, value, unaryoperator):
         import core.signal as insignal
-        if islambda(unaryoperator, 1):
-            return self.withstream(insignal.Signal(value), lambda s: s.edit(unaryoperator))
-        invalidtypes(unaryoperator)
+        return self.withstream(insignal.Signal(value), lambda s: s.edit(unaryoperator))

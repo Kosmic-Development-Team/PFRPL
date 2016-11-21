@@ -32,58 +32,38 @@ class Signal(instream.Stream, Supplier):
         return self._value
 
     def edit(self, unaryoperator):
-        if islambda(unaryoperator, 1):
-            self.set(unaryoperator(self.get()))
-        else:
-            invalidtypes(unaryoperator)
+        self.set(unaryoperator(self.get()))
 
     def mapsignal(self, unaryfunc):
-        if islambda(unaryfunc, 1):
-            return self.map(lambda: unaryfunc(self.get()))
-        invalidtypes(unaryfunc)
+        return self.map(lambda: unaryfunc(self.get()))
 
     def reducesignal(self, value, bifunc):
-        if islambda(bifunc, 2):
-            return self.withstream(Signal(value), lambda s: s.edit(lambda v: bifunc(self.get(), v)))
-        invalidtypes(bifunc)
+        return self.withstream(Signal(value), lambda s: s.edit(lambda v: bifunc(self.get(), v)))
 
     def foreach(self, unaryoperator):
-        if islambda(unaryoperator, 1):
-            return self.withstream(Signal(self.get()), lambda s: self.__runall(unaryoperator, s))
-        invalidtypes(unaryoperator)
+        return self.withstream(Signal(self.get()), lambda s: self.__runall(unaryoperator, s))
 
     def untilsignal(self, signal):
-        if isinstance(signal, Signal):
-            return self.until(lambda: signal.get())
+        return self.until(lambda: signal.get())
 
     def untilsignalbool(self, unaryfunc):
-        if islambda(unaryfunc, 1):
-            v = None
-            if unaryfunc(self.get()):
-                v = self.get()
-            return self.withstream(Signal(v), lambda s: self.__runifelif(unaryfunc, s))
-        invalidtypes(unaryfunc)
+        v = None
+        if unaryfunc(self.get()):
+            v = self.get()
+        return self.withstream(Signal(v), lambda s: self.__runifelif(unaryfunc, s))
 
     def filtersignal(self, signal):
-        if isinstance(signal, Signal):
-            return signal.addchild(self.filtersignalbool(lambda x: signal.get()))
-        invalidtypes(signal)
+        return signal.addchild(self.filtersignalbool(lambda x: signal.get()))
 
     def filtersignalbool(self, unaryfunc):
-        if islambda(unaryfunc, 1):
-            v = None
-            if unaryfunc(self.get()):
-                v = self.get()
-            return self.withstream(Signal(v), lambda s: self.__runif(unaryfunc, s))
-        invalidtypes(unaryfunc)
+        v = None
+        if unaryfunc(self.get()):
+            v = self.get()
+        return self.withstream(Signal(v), lambda s: self.__runif(unaryfunc, s))
 
     def doforeach(self, unaryoperator):
-        if islambda(unaryoperator, 1):
-            unaryoperator(self.get())
-            return self.withstream(Signal(self.get()), lambda s: self.__runall(unaryoperator, s))
-        invalidtypes(unaryoperator)
+        unaryoperator(self.get())
+        return self.withstream(Signal(self.get()), lambda s: self.__runall(unaryoperator, s))
 
     def find(self, unaryfunc):
-        if islambda(unaryfunc):
-            return self.filtersignalbool(unaryfunc).first(1)
-        invalidtypes(unaryfunc)
+        return self.filtersignalbool(unaryfunc).first(1)

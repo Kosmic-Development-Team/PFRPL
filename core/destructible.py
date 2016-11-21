@@ -9,20 +9,15 @@ class Destructible:
         self.destroyed = False
 
     def addchild(self, child):
-        if isinstance(child, Destructible):
-            if child not in self._children:
-                self._children.append(child)
-                child.__addparent(self)
-            return child
-        invalidtypes(child)
+        if child not in self._children:
+            self._children.append(child)
+            child.__addparent(self)
+        return child
 
     def __addparent(self, parent):
-        if isinstance(parent, Destructible):
-            if parent not in self._parents:
-                self._parents.append(parent)
-                parent.addchild(self)
-        else:
-            invalidtypes(parent)
+        if parent not in self._parents:
+            self._parents.append(parent)
+            parent.addchild(self)
 
     def removechild(self, child):
         if child in self._children:
