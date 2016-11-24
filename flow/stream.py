@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
-from core.destructible import Destructible
-from util.supplier import Supplier
+from flow.destructible import Destructible
+from flow.supplier import Supplier
 from util.utility import *
 
 
@@ -91,12 +91,12 @@ class Stream(Destructible):
             return signal.addchildterm(self.withstream(signal.Signal(signal.get()), lambda s: s.set(signal.get())))
 
     def map(self, supplier):
-        import core.signal as insignal
+        import flow.signal as insignal
         if isinstance(supplier, Supplier):
             return self.withstream(insignal.Signal(supplier.get()), lambda s: s.set(supplier.get()))
         else:
             return self.withstream(insignal.Signal(supplier.get()), lambda s: s.set(supplier()))
 
     def reduce(self, value, unaryoperator):
-        import core.signal as insignal
+        import flow.signal as insignal
         return self.withstream(insignal.Signal(value), lambda s: s.edit(unaryoperator))

@@ -1,6 +1,5 @@
-from util.supplier import Supplier
-from util.utility import *
-import core.stream as instream
+import flow.supplier.Supplier as Supplier
+import flow.stream as instream
 
 
 class Signal(instream.Stream, Supplier):
