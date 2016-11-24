@@ -1,6 +1,3 @@
-from util.utility import *
-
-
 class Destructible:
 
     def __init__(self):

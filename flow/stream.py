@@ -1,8 +1,6 @@
 from collections import OrderedDict
-
 from flow.destructible import Destructible
 from flow.supplier import Supplier
-from util.utility import *
 
 
 class Stream(Destructible):

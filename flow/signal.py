@@ -1,4 +1,4 @@
-import flow.supplier.Supplier as Supplier
+from flow.supplier import Supplier
 import flow.stream as instream
 
 

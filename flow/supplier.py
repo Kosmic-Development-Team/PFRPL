@@ -1,5 +1,3 @@
-
-
 class Supplier:
 
     def get(self):
